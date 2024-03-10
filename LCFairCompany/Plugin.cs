@@ -23,6 +23,7 @@ namespace LCFairCompany
 
             Logger?.LogDebug("Patching harmony...");
             _harmony.PatchAll(typeof(Patches.StartOfRoundPatch));
+            _harmony.PatchAll(typeof(Patches.SandSpiderAIPatch));
         }
     }
 }

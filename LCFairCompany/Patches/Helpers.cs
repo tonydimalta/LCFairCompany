@@ -63,5 +63,17 @@ namespace LCFairCompany
             Plugin.Logger?.LogInfo($"Changing \"{enemyType.enemyName}\" MaxCount ({enemyType.MaxCount} => {maxCount})");
             enemyType.MaxCount = maxCount;
         }
+
+        public static void SetEnemyHP(this EnemyAI enemyAI, int enemyHP)
+        {
+            if (enemyAI.enemyHP == enemyHP)
+            {
+                Plugin.Logger?.LogDebug($"\"{enemyAI.enemyType.enemyName}\" EnemyHP is already {enemyHP}, nothing to change");
+                return;
+            }
+
+            Plugin.Logger?.LogInfo($"Changing \"{enemyAI.enemyType.enemyName}\" EnemyHP ({enemyAI.enemyHP} => {enemyHP})");
+            enemyAI.enemyHP = enemyHP;
+        }
     }
 }

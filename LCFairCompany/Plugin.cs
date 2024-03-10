@@ -1,6 +1,7 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
+using System.Reflection;
 
 namespace LCFairCompany
 {
@@ -22,8 +23,7 @@ namespace LCFairCompany
             Logger?.LogInfo($"Plugin {PluginInfo.PLUGIN_NAME} is loaded!");
 
             Logger?.LogDebug("Patching harmony...");
-            _harmony.PatchAll(typeof(Patches.StartOfRoundPatch));
-            _harmony.PatchAll(typeof(Patches.SandSpiderAIPatch));
+            _harmony.PatchAll(Assembly.GetExecutingAssembly());
         }
     }
 }

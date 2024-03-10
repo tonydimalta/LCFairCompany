@@ -6,7 +6,7 @@ using System.Reflection;
 namespace LCFairCompany.Patches
 {
     [HarmonyPatch(typeof(SandSpiderAI))]
-    internal class SandSpiderAIPatch
+    internal static class SandSpiderAIPatch
     {
         [HarmonyPatch(nameof(SandSpiderAI.Start))]
         [HarmonyPostfix]

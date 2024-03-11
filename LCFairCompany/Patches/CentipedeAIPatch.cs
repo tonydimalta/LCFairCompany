@@ -1,8 +1,5 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using UnityEngine;
 
 namespace LCFairCompany.Patches
@@ -24,21 +21,31 @@ namespace LCFairCompany.Patches
 
         public void OnPlayerDamaged(int damage)
         {
+            if (_centipedeAI.inDroppingOffPlayerAnim)
+            {
+                return;
+            }
+
             Plugin.Logger?.LogDebug($"Updating \"{EntitiesName.SnareFlea}\" DamageSinceClingingToPlayer ({_damageSinceClingingToPlayer} => {_damageSinceClingingToPlayer + damage})");
             _damageSinceClingingToPlayer += damage;
-            if (_damageSinceClingingToPlayer >= MaxDamagePerClinging &&
-                !_centipedeAI.inDroppingOffPlayerAnim)
+
+            bool bShouldStopClinging = false;
+            if (StartOfRound.Instance.connectedPlayersAmount > 0 && StartOfRound.Instance.livingPlayers == 1 && _centipedeAI.clingingToPlayer.health <= 15 && !StartOfRoundPatch.LastSurvivorSecondChanceGiven)
             {
-                Plugin.Logger?.LogInfo($"\"{EntitiesName.SnareFlea}\" reached MaxDamagePerClinging ({_damageSinceClingingToPlayer}/{MaxDamagePerClinging}), triggering StopClinging on player \"{_centipedeAI.clingingToPlayer?.playerUsername}\"");
+                Plugin.Logger?.LogInfo($"\"{EntitiesName.SnareFlea}\" is attempting to kill the last survivor");
+                StartOfRoundPatch.LastSurvivorSecondChanceGiven = true;
+                bShouldStopClinging = true;
+            }
+            else if (_damageSinceClingingToPlayer >= MaxDamagePerClinging)
+            {
+                Plugin.Logger?.LogInfo($"\"{EntitiesName.SnareFlea}\" reached MaxDamagePerClinging ({_damageSinceClingingToPlayer}/{MaxDamagePerClinging})");
+                bShouldStopClinging = true;
+            }
+
+            if (bShouldStopClinging)
+            {
                 _centipedeAI.inDroppingOffPlayerAnim = true;
-                if (_centipedeAI.IsServer)
-                {
-                    _centipedeAI.StopClingingServerRpc(playerDead: false);
-                }
-                else
-                {
-                    _centipedeAI.StopClingingClientRpc(playerDead: false);
-                }
+                _centipedeAI.StopClingingServerRpc(playerDead: false);
             }
         }
 
@@ -72,47 +79,6 @@ namespace LCFairCompany.Patches
             {
                 patch.OnPlayerDamaged(damage);
             }
-        }
-
-        [HarmonyPatch(nameof(CentipedeAI.DamagePlayerOnIntervals))]
-        [HarmonyTranspiler]
-        private static IEnumerable<CodeInstruction> DamagePlayerOnIntervalsTranspiler(IEnumerable<CodeInstruction> instructions)
-        {
-            var instructionsList = instructions.ToList();
-            const int maxConnectedPlayersAmount = 0;
-            bool bFoundPlayersAmount = false;
-            FieldInfo connectedPlayersAmount = AccessTools.Field(typeof(StartOfRound), nameof(StartOfRound.connectedPlayersAmount));
-            FieldInfo livingPlayers = AccessTools.Field(typeof(StartOfRound), nameof(StartOfRound.livingPlayers));
-
-            Plugin.Logger?.LogDebug($"Enumerating code instructions in \"{nameof(CentipedeAI.DamagePlayerOnIntervals)}\" until we find the conditions to trigger the second chance...");
-            for (int i = 0; i < instructionsList.Count; ++i)
-            {
-                // Commented out to cleanup logs (I wish there was a Verbose log).
-                // Plugin.Logger?.LogDebug($"Found code instruction: \"{instructionsList[i]}\"");
-
-                if (instructionsList[i].LoadsField(connectedPlayersAmount) &&
-                    i + 1 < instructionsList.Count &&
-                    instructionsList[i + 1].LoadsConstant(maxConnectedPlayersAmount))
-                {
-                    Plugin.Logger?.LogInfo($"Changing \"{EntitiesName.SnareFlea}\" StopClinging from single player to last survivor (multiplayer included)");
-                    instructionsList[i].operand = livingPlayers;
-                    instructionsList[i + 1].operand = 1;
-                    bFoundPlayersAmount = true;
-                }
-
-                if (bFoundPlayersAmount)
-                {
-                    // No need to keep going through any remaining instruction.
-                    break;
-                }
-            }
-
-            if (!bFoundPlayersAmount)
-            {
-                Plugin.Logger?.LogError($"[{nameof(CentipedeAI.DamagePlayerOnIntervals)}] Cannot find \"{nameof(connectedPlayersAmount)}\"");
-            }
-
-            return instructionsList;
         }
 
         [HarmonyPatch(nameof(CentipedeAI.ClingToPlayer))]

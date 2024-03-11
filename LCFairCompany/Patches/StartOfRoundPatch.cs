@@ -5,10 +5,14 @@ namespace LCFairCompany.Patches
     [HarmonyPatch(typeof(StartOfRound))]
     internal static class StartOfRoundPatch
     {
+        public static bool LastSurvivorSecondChanceGiven = false;
+
         [HarmonyPatch(nameof(StartOfRound.StartGame))]
         [HarmonyPostfix]
         private static void StartGamePostfix()
         {
+            LastSurvivorSecondChanceGiven = false;
+
             if (StartOfRound.Instance is null || !StartOfRound.Instance.IsServer)
             {
                 return;

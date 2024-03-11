@@ -1,3 +1,9 @@
+## Version 1.0.1
+Actually link the dll this time (oops).
+
+### Snare Flea
+Hopefully fix the previous version in multiplayer.
+
 ## Version 1.0.0
 
 ### Bunker Spider

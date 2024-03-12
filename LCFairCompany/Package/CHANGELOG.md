@@ -1,7 +1,10 @@
-## Version 1.0.1
+### Version 1.0.2
+Update dll versioning so it shows up in the thunderstore.
+
+### Version 1.0.1
 Actually link the dll this time (oops).
 
-### Snare Flea
+#### Snare Flea
 Hopefully fix the previous version in multiplayer.
 
 ## Version 1.0.0

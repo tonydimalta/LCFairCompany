@@ -7,9 +7,11 @@ namespace LCFairCompany.Patches
     [HarmonyPatch(typeof(CentipedeAI))]
     internal class CentipedeAIPatch : MonoBehaviour
     {
-        private CentipedeAI _centipedeAI;
+        private CentipedeAI _centipedeAI = null;
 
         private int _damageSinceClingingToPlayer = 0;
+        private int _timesPlayedInSameSpot = 0;
+        private float? _delayUntilNextAudioCue = null;
 
         public const int MaxDamagePerClinging = 60;
 
@@ -17,6 +19,11 @@ namespace LCFairCompany.Patches
         {
             Plugin.Logger?.LogDebug($"\"{EntitiesName.SnareFlea}\" applies \"{nameof(CentipedeAIPatch)}\"");
             _centipedeAI = gameObject.GetComponent<CentipedeAI>();
+        }
+
+        protected void LateUpdate()
+        {
+            UpdateDelayUntilNextAudioCue(Time.deltaTime);
         }
 
         public void OnPlayerDamaged(int damage)
@@ -55,6 +62,51 @@ namespace LCFairCompany.Patches
             _damageSinceClingingToPlayer = 0;
         }
 
+        private void PlayRandomShriekSFX()
+        {
+            if (_centipedeAI == null)
+            {
+                return;
+            }
+
+            Plugin.Logger?.LogDebug($"Playing \"{EntitiesName.SnareFlea}\" RandomShriekSFX ({nameof(_timesPlayedInSameSpot)}={_timesPlayedInSameSpot})");
+            AudioHelpers.PlayRandomOneShot(
+                _centipedeAI.creatureSFX,
+                _centipedeAI.shriekClips,
+                volume: .1f,
+                minDistance: 10f,
+                maxDistance: 35f,
+                bTransmitToWalkieTalkie: false,
+                _timesPlayedInSameSpot
+            );
+        }
+
+        private void UpdateDelayUntilNextAudioCue(float deltaTime)
+        {
+            if (_centipedeAI == null ||
+                !_centipedeAI.IsClient ||
+                !_centipedeAI.clingingToCeiling ||
+                _centipedeAI.ceilingAnimationCoroutine != null)
+            {
+                _delayUntilNextAudioCue = null;
+                _timesPlayedInSameSpot = 0;
+                return;
+            }
+
+            if (!_delayUntilNextAudioCue.HasValue)
+            {
+                _delayUntilNextAudioCue = Random.Range(15f, 20f);
+            }
+
+            _delayUntilNextAudioCue -= deltaTime;
+            if (_delayUntilNextAudioCue <= 0f)
+            {
+                PlayRandomShriekSFX();
+                _delayUntilNextAudioCue = null;
+                ++_timesPlayedInSameSpot;
+            }
+        }
+
         [HarmonyPatch(nameof(CentipedeAI.Start))]
         [HarmonyPostfix]
         private static void StartPostfix(CentipedeAI __instance)
@@ -66,14 +118,14 @@ namespace LCFairCompany.Patches
         [HarmonyPrefix]
         private static void DamagePlayerOnIntervalsPrefix(CentipedeAI __instance, out int __state)
         {
-            __state = __instance.clingingToPlayer.health;
+            __state = __instance.clingingToPlayer?.health ?? 0;
         }
 
         [HarmonyPatch(nameof(CentipedeAI.DamagePlayerOnIntervals))]
         [HarmonyPostfix]
         private static void DamagePlayerOnIntervalsPostfix(CentipedeAI __instance, int __state)
         {
-            int damage = __state - __instance.clingingToPlayer.health;
+            int damage = __state - __instance.clingingToPlayer?.health ?? 0;
             if (damage > 0 &&
                 __instance.gameObject.TryGetComponent(out CentipedeAIPatch patch))
             {

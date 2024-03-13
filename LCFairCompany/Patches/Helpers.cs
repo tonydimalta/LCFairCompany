@@ -1,4 +1,5 @@
-﻿using StringComparison = System.StringComparison;
+﻿using UnityEngine;
+using StringComparison = System.StringComparison;
 
 namespace LCFairCompany
 {
@@ -33,7 +34,7 @@ namespace LCFairCompany
         public const string LassoMan = "Lasso";
     }
 
-    internal static class Helpers
+    internal static class EnemyHelpers
     {
         public static bool IsMatchingName(this EnemyType enemyType, string enemyName)
         {
@@ -74,6 +75,54 @@ namespace LCFairCompany
 
             Plugin.Logger?.LogInfo($"Changing \"{enemyAI.enemyType.enemyName}\" EnemyHP ({enemyAI.enemyHP} => {enemyHP})");
             enemyAI.enemyHP = enemyHP;
+        }
+    }
+
+    internal static class AudioHelpers
+    {
+        public static int PlayRandomOneShot(this AudioSource audioSource, AudioClip[] clipsArray, float volume = 1f, float? minDistance = null, float? maxDistance = null, bool bTransmitToWalkieTalkie = true, int timesPlayedInSameSpot = 0)
+        {
+            if (audioSource == null || clipsArray == null || clipsArray.Length <= 0)
+            {
+                return -1;
+            }
+
+            // Cache previous values to set them back before exiting.
+            float prevPitch = audioSource.pitch;
+            float prevMinDist = audioSource.minDistance;
+            float prevMaxDist = audioSource.maxDistance;
+
+            audioSource.pitch = Random.Range(0.94f, 1.06f);
+
+            if (minDistance.HasValue)
+            {
+                audioSource.minDistance = minDistance.Value;
+            }
+
+            if (maxDistance.HasValue)
+            {
+                audioSource.maxDistance = maxDistance.Value;
+            }
+
+            int num = Random.Range(0, clipsArray.Length);
+            audioSource.PlayOneShot(clipsArray[num], volume);
+
+            if (bTransmitToWalkieTalkie)
+            {
+                WalkieTalkie.TransmitOneShotAudio(audioSource, clipsArray[num], 0.85f * volume);
+            }
+
+            if (audioSource.spatialBlend > 0f)
+            {
+                RoundManager.Instance.PlayAudibleNoise(audioSource.transform.position, 4f * volume, volume / 2f, timesPlayedInSameSpot, noiseIsInsideClosedShip: false, noiseID: 0);
+            }
+
+            // Re-apply previous values before exiting.
+            audioSource.pitch = prevPitch;
+            audioSource.minDistance = prevMinDist;
+            audioSource.maxDistance = prevMaxDist;
+
+            return num;
         }
     }
 }

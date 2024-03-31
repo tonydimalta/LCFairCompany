@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using LCFairCompany.Configs;
 
 namespace LCFairCompany.Patches
 {
@@ -6,6 +7,13 @@ namespace LCFairCompany.Patches
     internal static class StartOfRoundPatch
     {
         public static bool LastSurvivorSecondChanceGiven = false;
+
+        private static bool BunkerSpiderChangePowerLevel => ConfigManager.Instance.Enemy.BunkerSpiderChangePowerLevel.Value;
+        private static bool BunkerSpiderChangeMaxCount => ConfigManager.Instance.Enemy.BunkerSpiderChangeMaxCount.Value;
+        private static bool CoilheadChangePowerLevel => ConfigManager.Instance.Enemy.CoilheadChangePowerLevel.Value;
+        private static bool CoilheadChangeMaxCount => ConfigManager.Instance.Enemy.CoilheadChangeMaxCount.Value;
+        private static bool GhostGirlChangePowerLevel => ConfigManager.Instance.Enemy.GhostGirlChangePowerLevel.Value;
+        private static bool JesterChangePowerLevel => ConfigManager.Instance.Enemy.JesterChangePowerLevel.Value;
 
         [HarmonyPatch(nameof(StartOfRound.StartGame))]
         [HarmonyPostfix]
@@ -36,21 +44,41 @@ namespace LCFairCompany.Patches
                 Plugin.Logger?.LogDebug($"Found spawnable enemy: \"{enemyType.enemyName}\"");
                 if (enemyType.IsMatchingName(EntitiesName.BunkerSpider))
                 {
-                    enemyType.SetEnemyPowerLevel(2); // from 3
-                    enemyType.SetEnemyMaxCount(2); // from 1
+                    if (BunkerSpiderChangePowerLevel)
+                    {
+                        enemyType.SetEnemyPowerLevel(2); // from 3
+                    }
+
+                    if (BunkerSpiderChangeMaxCount)
+                    {
+                        enemyType.SetEnemyMaxCount(2); // from 1
+                    }
                 }
                 else if (enemyType.IsMatchingName(EntitiesName.Coilhead))
                 {
-                    enemyType.SetEnemyPowerLevel(2); // from 1
-                    enemyType.SetEnemyMaxCount(4); // from 5
+                    if (CoilheadChangePowerLevel)
+                    {
+                        enemyType.SetEnemyPowerLevel(2); // from 1
+                    }
+
+                    if (CoilheadChangeMaxCount)
+                    {
+                        enemyType.SetEnemyMaxCount(4); // from 5
+                    }
                 }
                 else if (enemyType.IsMatchingName(EntitiesName.GhostGirl))
                 {
-                    enemyType.SetEnemyPowerLevel(3); // from 2
+                    if (GhostGirlChangePowerLevel)
+                    {
+                        enemyType.SetEnemyPowerLevel(3); // from 2
+                    }
                 }
                 else if (enemyType.IsMatchingName(EntitiesName.Jester))
                 {
-                    enemyType.SetEnemyPowerLevel(2); // from 3
+                    if (JesterChangePowerLevel)
+                    {
+                        enemyType.SetEnemyPowerLevel(2); // from 3
+                    }
                 }
             }
         }

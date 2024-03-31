@@ -1,6 +1,7 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
+using LCFairCompany.Configs;
 using System.Reflection;
 
 namespace LCFairCompany
@@ -9,6 +10,7 @@ namespace LCFairCompany
     internal class Plugin : BaseUnityPlugin
     {
         private readonly Harmony _harmony = null;
+        private readonly ConfigManager _configManager = null;
 
         internal static new ManualLogSource Logger { get; private set; } = null;
 
@@ -16,6 +18,7 @@ namespace LCFairCompany
         {
             Logger = base.Logger;
             _harmony = new Harmony(PluginInfo.PLUGIN_GUID);
+            _configManager = new ConfigManager(Config);
         }
 
         protected void Awake()

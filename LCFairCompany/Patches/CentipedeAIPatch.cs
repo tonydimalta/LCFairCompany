@@ -1,5 +1,6 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
+using LCFairCompany.Configs;
 using UnityEngine;
 
 namespace LCFairCompany.Patches
@@ -13,7 +14,11 @@ namespace LCFairCompany.Patches
         private int _timesPlayedInSameSpot = 0;
         private float? _delayUntilNextAudioCue = null;
 
-        public const int MaxDamagePerClinging = 60;
+        private bool LimitDamagePerClinging => ConfigManager.Instance.Centipede.LimitDamagePerClinging.Value;
+        private int MaxDamagePerClinging => ConfigManager.Instance.Centipede.MaxDamagePerClinging.Value;
+        private bool PlayAudioShriekOnCeiling => ConfigManager.Default.Centipede.PlayAudioShriekOnCeiling.Value;
+        private int AudioShriekMinFrequency => ConfigManager.Default.Centipede.AudioShriekMinFrequency.Value;
+        private int AudioShriekMaxFrequency => ConfigManager.Default.Centipede.AudioShriekMaxFrequency.Value;
 
         protected void Start()
         {
@@ -23,7 +28,14 @@ namespace LCFairCompany.Patches
 
         protected void LateUpdate()
         {
-            UpdateDelayUntilNextAudioCue(Time.deltaTime);
+            if (PlayAudioShriekOnCeiling)
+            {
+                UpdateDelayUntilNextAudioCue(Time.deltaTime);
+            }
+            else
+            {
+                _delayUntilNextAudioCue = null;
+            }
         }
 
         public void OnPlayerDamaged(int damage)
@@ -43,7 +55,8 @@ namespace LCFairCompany.Patches
                 StartOfRoundPatch.LastSurvivorSecondChanceGiven = true;
                 bShouldStopClinging = true;
             }
-            else if (_damageSinceClingingToPlayer >= MaxDamagePerClinging)
+            else if (LimitDamagePerClinging &&
+                _damageSinceClingingToPlayer >= MaxDamagePerClinging)
             {
                 Plugin.Logger?.LogInfo($"\"{EntitiesName.SnareFlea}\" reached MaxDamagePerClinging ({_damageSinceClingingToPlayer}/{MaxDamagePerClinging})");
                 bShouldStopClinging = true;
@@ -95,7 +108,16 @@ namespace LCFairCompany.Patches
 
             if (!_delayUntilNextAudioCue.HasValue)
             {
-                _delayUntilNextAudioCue = Random.Range(15f, 20f);
+                float minDelay = 60f / Mathf.Max(AudioShriekMaxFrequency, 1);
+                float maxDelay = 60f / Mathf.Max(AudioShriekMinFrequency, 1);
+                if (minDelay <= maxDelay)
+                {
+                    _delayUntilNextAudioCue = Random.Range(minDelay, maxDelay);
+                }
+                else
+                {
+                    _delayUntilNextAudioCue = Random.Range(maxDelay, minDelay);
+                }
             }
 
             _delayUntilNextAudioCue -= deltaTime;

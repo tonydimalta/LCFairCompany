@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using LCFairCompany.Configs;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -8,11 +9,15 @@ namespace LCFairCompany.Patches
     [HarmonyPatch(typeof(SandSpiderAI))]
     internal static class SandSpiderAIPatch
     {
+        private static int Health => ConfigManager.Instance.Spider.Health.Value;
+        private static int Damage => ConfigManager.Instance.Spider.Damage.Value;
+        private static int ScaleDPS => ConfigManager.Instance.Spider.ScaleDPS.Value;
+
         [HarmonyPatch(nameof(SandSpiderAI.Start))]
         [HarmonyPostfix]
         private static void StartPostfix(SandSpiderAI __instance)
         {
-            __instance.SetEnemyHP(4); // from 5
+            __instance.SetEnemyHP(Health); // from 5
         }
 
         [HarmonyPatch(nameof(SandSpiderAI.OnCollideWithPlayer))]
@@ -21,11 +26,11 @@ namespace LCFairCompany.Patches
         {
             var instructionsList = instructions.ToList();
             const int baseDamage = 90;
-            const int patchedDamage = 60;
             bool bFoundDamage = false;
             const float baseCooldown = 1f;
-            // Aiming for 45 DPS (half the base value) which gives ~1.33 sec of cooldown for 60 damage
-            const float patchedCooldown = patchedDamage / 45f;
+            float currentDPS = Damage / baseCooldown;
+            float scaledDPS = currentDPS * ScaleDPS / 100f;
+            float patchedCooldown = Damage / scaledDPS;
             FieldInfo timeSinceHittingPlayer = AccessTools.Field(typeof(SandSpiderAI), nameof(SandSpiderAI.timeSinceHittingPlayer));
             bool bFoundCooldown = false;
 
@@ -39,8 +44,8 @@ namespace LCFairCompany.Patches
                 // the instructions don't occur in a row, so let's assume it's the right one...
                 if (instructionsList[i].LoadsConstant(baseDamage))
                 {
-                    Plugin.Logger?.LogInfo($"Changing \"{EntitiesName.BunkerSpider}\" Damage ({baseDamage} => {patchedDamage})");
-                    instructionsList[i].operand = patchedDamage;
+                    Plugin.Logger?.LogInfo($"Changing \"{EntitiesName.BunkerSpider}\" Damage ({baseDamage} => {Damage})");
+                    instructionsList[i].operand = Damage;
                     bFoundDamage = true;
                 }
 

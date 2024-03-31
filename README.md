@@ -1,5 +1,6 @@
 # LCFairCompany
-Mod to tweak some monsters in Lethal Company, ideal for smaller groups or inexperienced players.
+Mod to tweak some monsters in Lethal Company to make them more balanced, now fully configurable and synced with the Host!
+Also fixes Snare Fleas stacking on the same player and add some QoL (e.g. second chance works in MP, audio cue client-side) - see details below.
 
 ## Details
 <details open>
@@ -34,8 +35,8 @@ They don't appear very often and are somehow manageable given the telegraphed be
 ### Snare Flea
 If you know to look for them and have (pro)flashlights, they are manageable, but they are also a great threat for a measly 1 power level as they can wipe a group with little chances to retaliate, so let's address that:
 - A second chance is given to the last survivor in multiplayer
-- Snare Fleas stop clinging from any player after inflicting 60+ damage
+- Snare Fleas stop clinging from any player after inflicting enough damage (60 by default)
 - Prevent Snare Fleas stacking on the same player by making players non-targetable while latched on
-- Add a quiet audio shriek (triggering 3 to 4 times per minute) when a Snare Flea is on a ceiling
+- Add a quiet audio shriek when a Snare Flea is on a ceiling (triggering 3 to 4 times per minute by default)
 
 </details>

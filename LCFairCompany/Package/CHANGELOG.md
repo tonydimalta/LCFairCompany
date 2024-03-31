@@ -1,8 +1,11 @@
+## Version 2.0.0
+Now fully configurable and synced with the Host!
+
 ### Version 1.1.0
 Fix potential error when accessing player's health.
 
 #### Snare Flea
-Add an audio cue (triggering 3 to 4 times per minute) when a Snare Flea is on a ceiling
+Add an audio cue when a Snare Flea is on a ceiling (triggering 3 to 4 times per minute).
 
 ### Version 1.0.2
 Update dll versioning so it shows up in the thunderstore.

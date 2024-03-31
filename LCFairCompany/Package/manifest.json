@@ -1,8 +1,8 @@
 {
     "name": "LCFairCompany",
-    "version_number": "1.1.0",
+    "version_number": "2.0.0",
     "website_url": "https://github.com/tonydimalta/LCFairCompany/",
-    "description": "Mod to tweak some monsters in Lethal Company, ideal for smaller groups or inexperienced players.",
+    "description": "Mod to tweak some monsters in Lethal Company to make them more balanced, now fully configurable and synced with the Host! Also fixes Snare Fleas stacking on the same player and add some QoL - see details on your web browser.",
     "dependencies": [
         "BepInEx-BepInExPack-5.4.2100"
     ]

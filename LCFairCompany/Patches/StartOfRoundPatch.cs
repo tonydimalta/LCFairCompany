@@ -8,7 +8,6 @@ namespace LCFairCompany.Patches
     {
         public static bool LastSurvivorSecondChanceGiven = false;
 
-        private static bool BunkerSpiderChangePowerLevel => ConfigManager.Instance.Enemy.BunkerSpiderChangePowerLevel.Value;
         private static bool BunkerSpiderChangeMaxCount => ConfigManager.Instance.Enemy.BunkerSpiderChangeMaxCount.Value;
         private static bool CoilheadChangePowerLevel => ConfigManager.Instance.Enemy.CoilheadChangePowerLevel.Value;
         private static bool CoilheadChangeMaxCount => ConfigManager.Instance.Enemy.CoilheadChangeMaxCount.Value;
@@ -44,11 +43,6 @@ namespace LCFairCompany.Patches
                 Plugin.Logger?.LogDebug($"Found spawnable enemy: \"{enemyType.enemyName}\"");
                 if (enemyType.IsMatchingName(EntitiesName.BunkerSpider))
                 {
-                    if (BunkerSpiderChangePowerLevel)
-                    {
-                        enemyType.SetEnemyPowerLevel(2); // from 3
-                    }
-
                     if (BunkerSpiderChangeMaxCount)
                     {
                         enemyType.SetEnemyMaxCount(2); // from 1
@@ -58,7 +52,7 @@ namespace LCFairCompany.Patches
                 {
                     if (CoilheadChangePowerLevel)
                     {
-                        enemyType.SetEnemyPowerLevel(2); // from 1
+                        enemyType.SetEnemyPowerLevel(1.5f); // from 1
                     }
 
                     if (CoilheadChangeMaxCount)
@@ -70,14 +64,14 @@ namespace LCFairCompany.Patches
                 {
                     if (GhostGirlChangePowerLevel)
                     {
-                        enemyType.SetEnemyPowerLevel(3); // from 2
+                        enemyType.SetEnemyPowerLevel(3f); // from 2
                     }
                 }
                 else if (enemyType.IsMatchingName(EntitiesName.Jester))
                 {
                     if (JesterChangePowerLevel)
                     {
-                        enemyType.SetEnemyPowerLevel(2); // from 3
+                        enemyType.SetEnemyPowerLevel(2f); // from 3
                     }
                 }
             }

@@ -5,7 +5,6 @@ namespace LCFairCompany.Configs
 {
     internal class EnemyConfig
     {
-        public ConfigEntry<bool> BunkerSpiderChangePowerLevel { get; private set; } = null;
         public ConfigEntry<bool> BunkerSpiderChangeMaxCount { get; private set; } = null;
         public ConfigEntry<bool> CoilheadChangePowerLevel { get; private set; } = null;
         public ConfigEntry<bool> CoilheadChangeMaxCount { get; private set; } = null;
@@ -19,7 +18,6 @@ namespace LCFairCompany.Configs
                 throw new ArgumentNullException(nameof(config));
             }
 
-            BunkerSpiderChangePowerLevel = config.Bind("Bunker Spider Settings", "Change Power Level", true, new ConfigDescription("If enabled, makes it more likely to spawn (e.g. more than the Bracken but less than Hoarding Bugs)."));
             BunkerSpiderChangeMaxCount = config.Bind("Bunker Spider Settings", "Change Max Count", true, new ConfigDescription("If enabled, there can be at most 2 spiders spawned on the map (instead of 1). Do you prefer potentially having 2 spiders or other monsters? That's up to you."));
             CoilheadChangePowerLevel = config.Bind("Coilhead Settings", "Change Power Level", true, new ConfigDescription("If enabled, makes it less likely to spawn (e.g. more than the Bracken but less than Hoarding Bugs)."));
             CoilheadChangeMaxCount = config.Bind("Coilhead Settings", "Change Max Count", true, new ConfigDescription("If enabled, there can be at most 4 coilheads spawned on the map (instead of 5)."));
@@ -29,12 +27,6 @@ namespace LCFairCompany.Configs
 
         ~EnemyConfig()
         {
-            if (BunkerSpiderChangePowerLevel != null)
-            {
-                BunkerSpiderChangePowerLevel.ConfigFile.Remove(BunkerSpiderChangePowerLevel.Definition);
-                BunkerSpiderChangePowerLevel = null;
-            }
-
             if (BunkerSpiderChangeMaxCount != null)
             {
                 BunkerSpiderChangeMaxCount.ConfigFile.Remove(BunkerSpiderChangeMaxCount.Definition);

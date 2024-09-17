@@ -7,21 +7,19 @@ Also fixes Snare Fleas stacking on the same player and add some QoL (e.g. second
   <summary>Click to expand/collapse</summary>
 
 ### Bunker Spider
-The spider can somehow easily be avoided and is often not worth dealing with given its taking 3 power levels (same as the Bracken for instance) and also takes a whooping 5 hits to kill, the following changes aim at addressing that:
-- PowerLevel 3 => 2
-  - More likely to appear than the Bracken but less than Hoarding Bugs
+The spider can somehow easily be avoided and is often not worth dealing with given its fast/high damage and that it takes a whooping 5 hits to kill, the following changes aim at encouraging players to fight it more:
 - MaxCount 1 => 2
   - There can be at most 2 spiders inside at once, which should make dodging it a bit riskier with the added webs and them being able to cover more ground
 - Health 5 => 4
   - It takes one less hit to kill
 - Damage 90 => 60
-  - It still kills a player in 2 hits, but a one-hit combination of Blob or Yippee + Spider doesn't kill you
+  - It still kills a player in 2 hits, but a one-hit combination of Blob or Loot Bug + Spider doesn't kill you
 - HitCooldown 1 => ~1.33 sec
   - Aiming for 45 DPS (half the base value) which gives ~1.33 sec of cooldown for 60 damage, which should give a slightly more forgiving window to fight it
 
 ### Coilhead
 Coilheads can cut a run short if you're in a smaller group as it often appears with other monsters given its low power level, so let's make it happen a bit less often:
-- PowerLevel 1 => 2
+- PowerLevel 1 => 1.5
 - MaxCount 5 => 4
 
 ### Ghost Girl

@@ -41,9 +41,9 @@ namespace LCFairCompany
             return enemyType.enemyName.Equals(enemyName, StringComparison.OrdinalIgnoreCase);
         }
 
-        public static void SetEnemyPowerLevel(this EnemyType enemyType, int powerLevel)
+        public static void SetEnemyPowerLevel(this EnemyType enemyType, float powerLevel)
         {
-            if (enemyType.PowerLevel == powerLevel)
+            if (Mathf.Approximately(enemyType.PowerLevel, powerLevel))
             {
                 Plugin.Logger?.LogDebug($"\"{enemyType.enemyName}\" PowerLevel is already {powerLevel}, nothing to change");
                 return;

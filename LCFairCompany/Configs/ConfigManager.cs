@@ -1,10 +1,14 @@
 ﻿using BepInEx.Configuration;
+using HarmonyLib;
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using Unity.Collections;
 using Unity.Netcode;
 
 namespace LCFairCompany.Configs
 {
+    [Serializable]
     internal class ConfigManager : SyncedInstance<ConfigManager>
     {
         public EnemyConfig Enemy { get; private set; } = null;
@@ -33,9 +37,22 @@ namespace LCFairCompany.Configs
                 if (_config != null)
                 {
                     Plugin.Logger?.LogDebug("Binding config...");
+
+                    // We want to disable saving our config file every time we bind a
+                    // setting as it's inefficient and slow
+                    _config.SaveOnConfigSet = false;
+
                     Enemy = new EnemyConfig(_config);
                     Spider = new SandSpiderConfig(_config);
                     Centipede = new CentipedeConfig(_config);
+
+                    // Get rid of old settings from the config file that are not used anymore
+                    ClearOrphanedEntries(_config);
+                    // We need to manually save since we disabled `SaveOnConfigSet` earlier
+                    _config.Save();
+                    // And finally, we re-enable `SaveOnConfigSet` so changes to our config
+                    // entries are written to the config file automatically from now on
+                    _config.SaveOnConfigSet = true;
                 }
             }
         }
@@ -105,6 +122,16 @@ namespace LCFairCompany.Configs
             SyncInstance(data);
 
             Plugin.Logger?.LogInfo("Successfully synced config with host.");
+        }
+
+        private static void ClearOrphanedEntries(ConfigFile config)
+        {
+            // Find the private property `OrphanedEntries` from the type `ConfigFile`
+            PropertyInfo orphanedEntriesProp = AccessTools.Property(typeof(ConfigFile), "OrphanedEntries");
+            // And get the value of that property from our ConfigFile instance
+            var orphanedEntries = (Dictionary<ConfigDefinition, string>)orphanedEntriesProp.GetValue(config);
+            // And finally, clear the `OrphanedEntries` dictionary
+            orphanedEntries.Clear();
         }
     }
 }

@@ -1,3 +1,13 @@
+### Version 2.1.0
+- Fix a Serialization error in the ConfigManager
+- Fix an error with the PowerLevel (changed from int to float)
+
+#### Bunker Spider
+- Remove the change in PowerLevel since it was added in V50
+
+#### Coilhead
+- PowerLevel 1 => 1.5
+
 ## Version 2.0.0
 Now fully configurable and synced with the Host!
 
